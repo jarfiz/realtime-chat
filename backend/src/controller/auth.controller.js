@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 
 import prisma from "../lib/prisma.js";
 import { generateToken } from "../lib/utils.js";
+import cloudinary from "../lib/cloudinary.js";
 
 export const register = async (req, res) => {
   try {
@@ -79,6 +80,23 @@ export const login = async (req, res) => {
 
 export const update = async (req, res) => {
   try {
+    const { image } = req.body;
+
+    if (!image) {
+      res.status(400).json({ message: "Field are required" });
+    }
+
+    const userId = req.user.id;
+    const uploadResponse = await cloudinary.uploader.upload(image);
+
+    const updateUser = await prisma.user.update({
+      where: {
+        id: userId,
+        profilePic: uploadResponse.secure_url,
+      },
+    });
+
+    res.status(200).json(updateUser);
   } catch (error) {
     console.log("Error in update controller", error);
     res.status(500).json({ message: "Internal server error" });
