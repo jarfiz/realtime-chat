@@ -4,6 +4,7 @@ import cors from "cors";
 
 import env from "./lib/env.js";
 import authRoutes from "./routes/auth.routes.js";
+import messageRoutes from "./routes/message.routes.js";
 
 const app = express();
 
@@ -16,5 +17,6 @@ app.get("/", (_, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.listen(env.PORT, () => console.log(`Server running on port ${env.PORT}`));
