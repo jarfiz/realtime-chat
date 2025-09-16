@@ -3,7 +3,7 @@ dotenv.config();
 
 const env = {
   PORT: process.env.PORT,
-  NODE_END: process.env.NODE_END,
+  NODE_ENV: process.env.NODE_ENV,
   JWT_SECRET: process.env.JWT_SECRET,
 };
 

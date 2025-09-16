@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
 import prisma from "../lib/prisma.js";
+import { generateToken } from "../lib/utils.js";
 
 export const register = async (req, res) => {
   try {
@@ -32,6 +33,8 @@ export const register = async (req, res) => {
       },
     });
 
+    generateToken(newUser.id, res);
+
     res.status(201).json({
       name: newUser.name,
       email: newUser.email,
@@ -43,7 +46,31 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
+  const { email, password } = req.body;
   try {
+    if (!email || !password) {
+      return res.status(400).json({ message: "All field are required" });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    generateToken(user.id, res);
+
+    res.status(200).json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    });
   } catch (error) {
     console.log("Error in login controller", error);
     res.status(500).json({ message: "Internal server error" });
