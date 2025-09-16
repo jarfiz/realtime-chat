@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:17-alpine3.22
+    container_name: docker-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jarfiz
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: chat
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - db_data:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_buffers=128MB"
+      - "-c"
+      - "work_mem=4MB"
+      - "-c"
+      - "max_connections=50"
+
+volumes:
+  db_data:
